@@ -17,7 +17,6 @@ import gTTS from "gtts"
 import { changeAudioSpeed } from "./audo-editor.js";
 import { generate } from "randomstring";
 import fs from "fs"
-import { markdownToHtml } from 'marksmithjs';
 
 
 configDotenv()
@@ -28,6 +27,43 @@ const token = process.env.KEY;
 const botID = 7123617877
 
 const bot = new TelegramBot(token, {polling: true});
+
+function sanitizeHtmlForTelegram(input) {
+  // Replace paragraphs with new lines
+  let sanitized = input
+  // Convert H1 headers (# Header) to <b>Header</b><br/>
+  .replace(/^# (.*?)$/gm, '<b>$1</b><br/>')
+  // Convert H2 headers (## Header) to <b><i>Header</i></b><br/>
+  .replace(/^## (.*?)$/gm, '<b><i>$1</i></b><br/>')
+  // Convert H3 headers (### Header) to <i>Header</i><br/>
+  .replace(/^### (.*?)$/gm, '<i>$1</i><br/>')
+  // Convert bold (**text**) to <b>text</b>
+  .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+  // Convert italic (*text* or _text_) to <i>text</i>
+  .replace(/_(.*?)_/g, '<i>$1</i>')
+  // Underline -> <u>text</u> (using __text__ in MarkdownV2)
+  .replace(/__(.*?)__/g, '<u>$1</u>')
+  // Strikethrough -> <s>text</s> (using ~text~ in MarkdownV2)
+  .replace(/~(.*?)~/g, '<s>$1</s>')
+  // Convert unordered lists (* or -) to bullet points
+  .replace(/(?:\n|^)[*-]/g, `
+• $1`)
+  // Convert ordered lists (1. 2. etc.) to numbers
+  .replace(/(?:\n|^)(\d+)\./g, `
+$1. $2`)
+  // Convert inline code (`code`) to <code>code</code>
+  .replace(/`(.*?)`/g, '<code>$1</code>')
+  // Convert preformatted blocks (```text```) to <pre>text</pre>
+  .replace(/```(.*?)```/gs, '<pre>$1</pre>')
+  // Convert links [text](url) to <a href="url">text</a>
+  .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
+  // Convert newlines (two spaces or more) to <br/>
+  //.replace(/\n\n+/g, '<br/><br/>')
+  // Escape non-HTML < and >
+  //.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  return sanitized;
+}
 
 const sendMessage = (chatId, text, options = {}) => {
   bot.sendMessage(chatId, text, options)
@@ -89,7 +125,7 @@ bot.onText(/@voice/, async (msg, match) => {
       catch(err) {
         sendMessage(chatId, 
 `<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>
-${markdownToHtml(response)}
+${sanitizeHtmlForTelegram(response)}
 
 
 Could not send as a voice message
@@ -137,7 +173,7 @@ bot.onText(/\/google (.+)/, async (msg, match) => {
       message += element.description ?? "" + "\n"
       message += "\n\n"
   });
-  return sendMessage(chatId, markdownToHtml(message), {parse_mode : "HTML"})
+  return sendMessage(chatId, message, {parse_mode : "HTML"})
 });
 
 
@@ -170,7 +206,7 @@ bot.onText(/ask (.+)/, async (msg, match) => {
   const response = await chat(prompt)
   return sendMessage(chatId, 
 `<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>
-${markdownToHtml(response)}
+${sanitizeHtmlForTelegram(response)}
 `, {parse_mode : "HTML"})
 });
 
@@ -252,7 +288,7 @@ Here is a list of all commands
     const response = await chat(input, history)
 
     try {
-      sendMessage(chatId, `${response}`, {reply_to_message_id : msg.message_id})
+      sendMessage(chatId, `${sanitizeHtmlForTelegram(response)}`, {reply_to_message_id : msg.message_id, parse_mode : "HTML"})
       await addToConversationHistory(userID, input, "user")
       await addToConversationHistory(userID, response, "model")
       return
@@ -260,7 +296,7 @@ Here is a list of all commands
     catch(err) {
       sendMessage(chatId, 
 `<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>
-${markdownToHtml(response)}
+${sanitizeHtmlForTelegram(response)}
 `, {parse_mode : "HTML"})
       await addToConversationHistory(userID, input, "user")
       await addToConversationHistory(userID, response, "model")
@@ -274,7 +310,7 @@ ${markdownToHtml(response)}
     const response = await chat(input, history)
 
     try {
-      sendMessage(chatId, `${response}`, {reply_to_message_id : msg.message_id})
+      sendMessage(chatId, `${sanitizeHtmlForTelegram(response)}`, {reply_to_message_id : msg.message_id, parse_mode : "HTML"})
       await addToConversationHistory(userID, input, "user")
       await addToConversationHistory(userID, response, "model")
       return
@@ -282,7 +318,7 @@ ${markdownToHtml(response)}
     catch(err) {
       sendMessage(chatId, 
 `<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>
-${markdownToHtml(response)}
+${sanitizeHtmlForTelegram(response)}
 `, {parse_mode : "HTML"})
       await addToConversationHistory(userID, input, "user")
       await addToConversationHistory(userID, response, "model")
