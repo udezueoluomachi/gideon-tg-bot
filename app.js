@@ -47,10 +47,10 @@ function sanitizeHtmlForTelegram(input) {
   .replace(/~(.*?)~/g, '<s>$1</s>')
   // Convert unordered lists (* or -) to bullet points
   .replace(/(?:\n|^)[*-]/g, `
-• $1`)
+• `)
   // Convert ordered lists (1. 2. etc.) to numbers
   .replace(/(?:\n|^)(\d+)\./g, `
-$1. $2`)
+$1. `)
   // Convert inline code (`code`) to <code>code</code>
   .replace(/`(.*?)`/g, '<code>$1</code>')
   // Convert preformatted blocks (```text```) to <pre>text</pre>
