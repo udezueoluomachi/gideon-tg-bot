@@ -93,7 +93,7 @@ use /ask or send a message containing "gideon" to chat with the AI
 });
 
 
-bot.onText(/@voice/, async (msg, match) => {
+bot.onText(/\$voice/, async (msg, match) => {
   const chatId = msg.chat.id;
   
   let input = msg.text
@@ -153,7 +153,6 @@ bot.onText(/\/search (.+)/, async (msg, match) => {
 }, (err, data) => {
     if(err) 
       return
-    console.log(data)
 
     let message = `<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a> 🔎\n\n\n`
     
@@ -214,7 +213,7 @@ ${sanitizeHtmlForTelegram(response)}
 
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
-  const ignoringCommands = ["/url","/ask","/search", "@voice"]
+  const ignoringCommands = ["/url","/ask","/search", "$voice"]
   const triggerWords = [
     "gideon",
     // Greetings
@@ -278,7 +277,7 @@ Here is a list of all commands
 /search - Search google with the bot
 /help - view all bot's commands
 /ask - Use generative AI
-@voice - for the ai to use voice messages
+$voice - for the ai to use voice messages
 `
     )
   }
