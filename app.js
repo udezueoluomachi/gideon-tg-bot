@@ -5,18 +5,11 @@ import isUrl from "is-url";
 import chat from "./genai.js";
 import { connectToDatabase } from "./config.js";
 import { addToConversationHistory, getConversationHistory } from "./userHistory.js";
-import { 
-  search, 
-  // import the result types you want
-  OrganicResult, 
-  DictionaryResult,
-  // helpful to import ResultTypes to filter results
-  ResultTypes 
-} from 'google-sr';
 import gTTS from "gtts"
 import { changeAudioSpeed } from "./audo-editor.js";
 import { generate } from "randomstring";
 import fs from "fs"
+import ddg from "ddg"
 
 
 configDotenv()
@@ -149,31 +142,40 @@ Could not send as a voice message
   })
 });
 
-bot.onText(/\/google (.+)/, async (msg, match) => {
+bot.onText(/\/search (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const input = msg.text.substring(7).trim()
-  const results = await search({
-      query: input,
-      // OrganicResult is the default, however it is recommended to ALWAYS specify the result type
-      resultTypes: [OrganicResult],
-      // to add additional configuration to the request, use the requestConfig option
-      // which accepts a AxiosRequestConfig object
-      // OPTIONAL
-      requestConfig: {
-      params: {
-              // enable "safe mode"
-        safe: 'active'
-      },
-    },
+
+  ddg.query(input, {
+		"useragent": "My duckduckgo app",
+		"no_redirects": "1",
+		"no_html": "0",
+}, (err, data) => {
+    if(err) 
+      return
+    console.log(data)
+
+    let message = `<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a> 🔎\n\n\n`
+    
+    if(data.RelatedTopics.length === 0)
+      message += "Could not find result"
+
+    message += data.AbstractText
+
+    data.RelatedTopics.forEach(element => {
+        message += element.FirstURL + "\n" ?? "" + "\n"
+        message += element.Text ?? "" + "\n"
+        message += "\n\n"
+    });
+
+    data.Results.forEach(element => {
+        message += element.FirstURL + "\n" ?? "" + "\n"
+        message += element.Text ?? "" + "\n"
+        message += "\n\n"
+    });
+
+    return sendMessage(chatId, message, {parse_mode : "HTML"})
   })
-  let message = `<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a> ~  here are your search results:\n\n\n`
-  results.forEach(element => {
-      message += "\n" + element.title ?? "" + "\n"
-      message += element.link ?? "" + "\n"
-      message += element.description ?? "" + "\n"
-      message += "\n\n"
-  });
-  return sendMessage(chatId, message, {parse_mode : "HTML"})
 });
 
 
@@ -212,7 +214,7 @@ ${sanitizeHtmlForTelegram(response)}
 
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
-  const ignoringCommands = ["/url","/ask","/google", "@voice"]
+  const ignoringCommands = ["/url","/ask","/search", "@voice"]
   const triggerWords = [
     "gideon",
     // Greetings
@@ -266,14 +268,14 @@ bot.on('message', async (msg) => {
     */
   ];
 
-  if(msg.text === undefined || msg.text === "/start" || msg.text === "/google" || ignoringCommands.some( c => msg.text.startsWith(c)) || msg.contact || msg.location)
+  if(msg.text === undefined || msg.text === "/start" || msg.text === "/search" || ignoringCommands.some( c => msg.text.startsWith(c)) || msg.contact || msg.location)
     return
   else if(msg.text.toLowerCase() === "/help") {
     return sendMessage(chatId, 
 `
 Here is a list of all commands
 /start - Start / View robots options
-/google - Search google with the bot
+/search - Search google with the bot
 /help - view all bot's commands
 /ask - Use generative AI
 @voice - for the ai to use voice messages
