@@ -58,6 +58,42 @@ $1. `)
   return sanitized;
 }
 
+function sanitizeForVoice(input) {
+  //input = await formatEmojis(input)
+  // Replace paragraphs with new lines
+  let sanitized = input
+  // Convert H1 headers (# Header) to <b>Header</b><br/>
+  .replace(/^# (.*?)$/gm, '')
+  // Convert H2 headers (## Header) to <b><i>Header</i></b><br/>
+  .replace(/^## (.*?)$/gm, '')
+  // Convert H3 headers (### Header) to <i>Header</i><br/>
+  .replace(/^### (.*?)$/gm, '')
+  // Convert bold (**text**) to <b>text</b>
+  .replace(/\*\*(.*?)\*\*/g, '')
+  // Convert italic (*text* or _text_) to <i>text</i>
+  .replace(/_(.*?)_/g, '')
+  // Underline -> <u>text</u> (using __text__ in MarkdownV2)
+  .replace(/__(.*?)__/g, '')
+  // Strikethrough -> <s>text</s> (using ~text~ in MarkdownV2)
+  .replace(/~(.*?)~/g, '')
+  // Convert unordered lists (* or -) to bullet points
+  .replace(/(?:\n|^)[*-]/g, ``)
+  // Convert ordered lists (1. 2. etc.) to numbers
+  .replace(/(?:\n|^)(\d+)\./g, ``)
+  // Convert inline code (`code`) to <code>code</code>
+  .replace(/`(.*?)`/g, '')
+  // Convert preformatted blocks (```text```) to <pre>text</pre>
+  .replace(/```(.*?)```/gs, '')
+  // Convert links [text](url) to <a href="url">text</a>
+  .replace(/\[(.*?)\]\((.*?)\)/g, '')
+  // Convert newlines (two spaces or more) to <br/>
+  //.replace(/\n\n+/g, '<br/><br/>')
+  // Escape non-HTML < and >
+  //.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  return sanitized;
+}
+
 const sendMessage = (chatId, text, options = {}) => {
   bot.sendMessage(chatId, text, options)
     .then()
@@ -101,7 +137,7 @@ bot.onText(/\$voice/, async (msg, match) => {
   
   const history = await getConversationHistory(userID)
 
-  const response = await chat(input, history)
+  const response = sanitizeForVoice(await chat(input, history))
 
   const speech = new gTTS(response, "en-uk", false)
   const inVoice = generate(9)

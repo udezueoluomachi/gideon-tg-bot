@@ -110,3 +110,32 @@ export default async function chat(prompt, userHistory) {
         return "😶‍🌫️"
     }
 }
+
+export  async function formatEmojis(prompt) {
+    try {
+        const chatSession = model.startChat({
+            generationConfig,
+            history : [{
+               role: "user",
+               parts: [
+                 {text: "You will receive a text input that may contain emojis and symbols formatted in markdown. Your task is to translate those emojis and symbols into natural language expressions that fit the context of the conversation. Below are some examples:\n\n- Input: 'hi there 😊'\n  Output: 'Hi there, I am smiling right now.'\n\n- Input: 'I’m so excited! 🎉'\n  Output: 'I’m so excited! I’m celebrating!'\n\n- Input: 'I love this! ❤️'\n  Output: 'I love this! My heart feels warm.'\n\n- Input: 'I’ll call you later 📞'\n  Output: 'I’ll call you later on the phone.'\n\n- Input: 'Great job! 👍'\n  Output: 'Great job! I’m giving you a thumbs up.'\n\n- Input: 'Let's grab coffee ☕'\n  Output: 'Let’s grab coffee together.'\n\n- Input: 'Wow, that’s amazing! 😮'\n  Output: 'Wow, I’m in awe!' \n\nEnsure the output is punctuated correctly and reads fluently for a text-to-speech system. Do not include the emojis or symbols themselves in the output, only the translated phrases. Respond with 'Okay, I understand' to confirm your understanding."
+               },
+               ],
+             },
+             {
+               role: "model",
+               parts: [
+                 {text: "Okay, I understand.\n"},
+               ],
+             },
+            ]
+        });
+    
+        const result = await chatSession.sendMessage(prompt);
+        return result.response.text();
+    }
+    catch(err) {
+        console.log(err)
+        return "There has been a problem with my system"
+    }
+}
