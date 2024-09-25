@@ -5,6 +5,7 @@ import isUrl from "is-url";
 import chat from "./genai.js";
 import { connectToDatabase } from "./config.js";
 import { addToConversationHistory, getConversationHistory } from "./userHistory.js";
+import MutedChats from "./model/muted-chats.js"
 import gTTS from "gtts"
 import { changeAudioSpeed } from "./audo-editor.js";
 import { generate } from "randomstring";
@@ -18,6 +19,7 @@ connectToDatabase()
 
 const token = process.env.KEY;
 const botID = 7123617877
+const masterID = 2143033607
 
 const bot = new TelegramBot(token, {polling: true});
 
@@ -213,6 +215,67 @@ bot.onText(/\/search (.+)/, async (msg, match) => {
   })
 });
 
+bot.onText(/\/ignore/, async (msg, match) => {
+  const chatID = msg.chat.id;
+  if(msg.from.id !== masterID)
+    return sendMessage(chatID, 
+`
+<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>
+
+You are not the Creator
+`, {parse_mode : "HTML"}
+);
+ else if(!msg?.reply_to_message?.from?.id || msg?.reply_to_message?.from?.id === masterID) {
+  return sendMessage(chatID, "You have to reply to the message of the person to be ignored")
+ }
+ 
+ else if(msg.reply_to_message.from.id === botID)
+  return
+ else {
+  const isMuted = await MutedChats.findOne({chatID : `${msg.reply_to_message.from.id}`})
+  if(!isMuted) {
+    await MutedChats.create({
+      chatID : `${msg.reply_to_message.from.id}`
+    })
+  }
+  return sendMessage(chatID, 
+`
+<a href="tg://user?id=${msg.reply_to_message.from.id}">${msg.reply_to_message.from.first_name}</a>
+
+Has been blacklisted
+`, {parse_mode : "HTML"}
+    )
+ }
+})
+
+bot.onText(/\/canuse/, async (msg, match) => {
+  const chatID = msg.chat.id;
+  if(msg.from.id !== masterID)
+    return sendMessage(chatID, 
+`
+<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>
+
+You are not the Creator
+`, {parse_mode : "HTML"}
+);
+ else if(!msg?.reply_to_message?.from?.id) {
+  return sendMessage(chatID, "You have to reply to the message of the person to be freed")
+ }
+ 
+ else if(msg.reply_to_message.from.id === botID)
+  return
+ else {
+  await MutedChats.deleteOne({chatID : `${msg.reply_to_message.from.id}`})
+  return sendMessage(chatID, 
+`
+<a href="tg://user?id=${msg.reply_to_message.from.id}">${msg.reply_to_message.from.first_name}</a>
+
+Has been whitelisted. Can now use the bot.
+`, {parse_mode : "HTML"}
+    )
+ }
+})
+
 
 bot.onText(/\/url (.+)/, (msg, match) => {
   const chatId = msg.chat.id;
@@ -248,8 +311,11 @@ ${sanitizeHtmlForTelegram(response)}
 });
 
 bot.on('message', async (msg) => {
+  const isMuted = await MutedChats.findOne({chatID : `${msg.from.id}`})
+  if(isMuted)
+    return 0
   const chatId = msg.chat.id;
-  const ignoringCommands = ["/url","/ask","/search", "$voice"]
+  const ignoringCommands = ["/url","/ask","/search", "$voice", "/ignore", "/canuse"]
   const triggerWords = [
     "gideon",
     // Greetings
@@ -302,7 +368,6 @@ bot.on('message', async (msg) => {
     "i need a friend"
     */
   ];
-
   if(msg.text === undefined || msg.text === "/start" || msg.text === "/search" || ignoringCommands.some( c => msg.text.startsWith(c)) || msg.contact || msg.location)
     return
   else if(msg.text.toLowerCase() === "/help") {
