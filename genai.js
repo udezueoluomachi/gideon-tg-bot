@@ -102,7 +102,13 @@ export default async function chat(prompt, userHistory) {
     try {
         const chatSession = model.startChat({
             generationConfig,
-            history : userHistory ? userHistory : history
+            history : userHistory ? userHistory : history,
+            safetySettings : {
+               "HARM_CATEGORY_HARASSMENT": "BLOCK_NONE",
+               "HARM_CATEGORY_HATE_SPEECH": "BLOCK_NONE",
+               "HARM_CATEGORY_SEXUALLY_EXPLICIT": "BLOCK_NONE",
+               "HARM_CATEGORY_DANGEROUS_CONTENT": "BLOCK_NONE",
+            }
         });
     
         const result = await chatSession.sendMessage(prompt);
