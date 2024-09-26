@@ -23,6 +23,14 @@ const masterID = 2143033607
 
 const bot = new TelegramBot(token, {polling: true});
 
+function escapeCode(code) {
+  return code
+    .replace(/&/g, '&amp;')  // Escape &
+    .replace(/</g, '&lt;')   // Escape <
+    .replace(/>/g, '&gt;')   // Escape >
+    .replace(/"/g, '&quot;') // Escape "
+    .replace(/'/g, '&#39;'); // Escape '
+}
 function sanitizeHtmlForTelegram(input) {
   // Replace paragraphs with new lines
   let sanitized = input
@@ -46,10 +54,9 @@ function sanitizeHtmlForTelegram(input) {
   // Convert ordered lists (1. 2. etc.) to numbers
   .replace(/(?:\n|^)(\d+)\./g, `
 $1. `)
-  // Convert inline code (`code`) to <code>code</code>
-  .replace(/`(.*?)`/g, '<code>$1</code>')
   // Convert preformatted blocks (```text```) to <pre>text</pre>
-  .replace(/```(.*?)```/gs, '<pre>$1</pre>')
+  .replace(/```(.*?)```/gs, (_, code) => `<pre>${escapeCode(code)}</pre>`)
+  .replace(/`(.*?)`/gs, (_, code) => `<pre>${escapeCode(code)}</pre>`)
   // Convert links [text](url) to <a href="url">text</a>
   .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
   // Convert newlines (two spaces or more) to <br/>
@@ -409,7 +416,6 @@ ${sanitizeHtmlForTelegram(response)}
     let input = msg.text
     const userID = msg.from.id
     const history = await getConversationHistory(userID)
-    console.log(msg)
     if(msg.reply_to_message && msg.reply_to_message?.text && msg.reply_to_message.from.id === botID)
       history.push({
         role: "model",
