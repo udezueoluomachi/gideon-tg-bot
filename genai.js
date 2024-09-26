@@ -154,3 +154,5 @@ export  async function formatEmojis(prompt) {
         return "There has been a problem with my system"
     }
 }
+
+// TODO add mother info
