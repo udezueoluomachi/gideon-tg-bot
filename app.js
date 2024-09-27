@@ -13,6 +13,7 @@ import fs from "fs"
 import ddg from "ddg"
 import music from "./music.js";
 import path from "path";
+import { createReadStream } from "fs";
 
 
 configDotenv()
@@ -154,8 +155,9 @@ ${result === false ? "Something went wrong" : result}
 `, {parse_mode : "HTML"})
     const audio = path.resolve(result)
     bot.sendAudio(chatId, audio, {
-      caption : `${song.name} - ${song.artist.name}`,
-      thumbnail : song.thumbnails[0].url
+      caption : `<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>`,
+      thumbnail :"./thumbnail.jpg",
+      parse_mode : "HTML"
     })
     .then(() => {
       fs.unlink(audio, (err) => {
