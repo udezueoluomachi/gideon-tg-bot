@@ -177,6 +177,14 @@ bot.onText(/\$voice/, async (msg, match) => {
   const userID = msg.from.id
   
   const history = await getConversationHistory(userID)
+  if(msg.reply_to_message && msg.reply_to_message?.text && msg.reply_to_message.from.id === botID)
+    history.push({
+      role: "model",
+      parts: [
+        {text: msg.reply_to_message.text},
+      ],
+    }
+  )
 
   const response = sanitizeForVoice(await chat(input, history))
 
