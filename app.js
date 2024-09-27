@@ -173,7 +173,7 @@ ${result === false ? "Something went wrong" : result}
 bot.onText(/\$voice/, async (msg, match) => {
   const chatId = msg.chat.id;
   
-  let input = msg.text
+  let input = msg.text + " " + msg.from.id
   const userID = msg.from.id
   
   const history = await getConversationHistory(userID)
@@ -349,7 +349,7 @@ Link from <a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>
 bot.onText(/ask (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
 
-  const prompt = match[1].trim()
+  const prompt = match[1].trim() + " " + msg.from.id
   const response = await chat(prompt)
   return sendMessage(chatId, 
 `<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>
@@ -432,7 +432,7 @@ $voice - for the ai to use voice messages
   }
   
   else if(msg.chat.type === "private") {
-    let input = msg.text
+    let input = msg.text + " " + msg.from.id
     const userID = msg.from.id
     const history = await getConversationHistory(userID)
     const response = await chat(input, history)
@@ -454,7 +454,7 @@ ${sanitizeHtmlForTelegram(response)}
     }
   }
   else if(triggerWords.some( word => msg.text.toLowerCase().includes(word)) || (msg.reply_to_message && msg.reply_to_message.from.id === botID)) {
-    let input = msg.text
+    let input = msg.text + " " + msg.from.id
     const userID = msg.from.id
     const history = await getConversationHistory(userID)
     if(msg.reply_to_message && msg.reply_to_message?.text && msg.reply_to_message.from.id === botID)
