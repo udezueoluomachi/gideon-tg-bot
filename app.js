@@ -11,6 +11,8 @@ import { changeAudioSpeed } from "./audo-editor.js";
 import { generate } from "randomstring";
 import fs from "fs"
 import ddg from "ddg"
+import music from "./music.js";
+import path from "path";
 
 
 configDotenv()
@@ -137,6 +139,34 @@ use /ask or send a message containing "gideon" to chat with the AI
 );
 });
 
+
+bot.onText(/\/music (.+)/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  const input = msg.text.substring(7).trim()
+
+  await music(input, (result, song) => {
+    if(result === false || result === "No songs found")
+      return sendMessage(chatId, 
+`
+<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>
+🎶
+${result === false ? "Something went wrong" : result}
+`, {parse_mode : "HTML"})
+    const audio = path.resolve(result)
+    bot.sendAudio(chatId, audio, {
+      caption : `${song.name} - ${song.artist.name}`,
+      thumbnail : song.thumbnails[0].url
+    })
+    .then(() => {
+      fs.unlink(audio, (err) => {
+        if (err) {
+          return;
+        }
+      });
+    })
+    /**/
+  })
+})
 
 bot.onText(/\$voice/, async (msg, match) => {
   const chatId = msg.chat.id;
@@ -322,7 +352,7 @@ bot.on('message', async (msg) => {
   if(isMuted)
     return 0
   const chatId = msg.chat.id;
-  const ignoringCommands = ["/url","/ask","/search", "$voice", "/ignore", "/canuse"]
+  const ignoringCommands = ["/url","/ask","/search", "$voice", "/ignore", "/canuse", "/music"]
   const triggerWords = [
     "gideon",
     // Greetings
@@ -386,6 +416,7 @@ Here is a list of all commands
 /help - view all bot's commands
 /ask - Use generative AI
 $voice - for the ai to use voice messages
+/music - /music <music name> to request a song
 `
     )
   }
