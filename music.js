@@ -7,6 +7,8 @@ import { generate } from "randomstring";
 const API = new YTMusic();
 await API.initialize(/* Optional: Custom cookies */);
 
+const agent = ytdl.createAgent(JSON.parse(fs.readFileSync("cookies.json")))
+
 export default async function music(search, callback) {
   try {
     const songs = await API.search(search);
@@ -17,8 +19,6 @@ export default async function music(search, callback) {
     
     const url = `https://www.youtube.com/watch?v=${songs[0].videoId}`;
 
-    // Cookie string you extracted from your browser
-    const cookie = 'CONSENT=YES+; YSC=abcdefgh12345; VISITOR_INFO1_LIVE=xyz123abc;';
     const headers = {
       'X-YouTube-Client-Name': '5',
       'X-YouTube-Client-Version': '19.09.3',
@@ -38,7 +38,8 @@ export default async function music(search, callback) {
     const stream = ytdl(url, {
       quality: 'highestaudio',
       filter: "audioonly",
-      headers
+      headers,
+      agent
     })
 
     const audioOutput = fs.createWriteStream(audioPath);
