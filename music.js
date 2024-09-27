@@ -7,7 +7,7 @@ import { generate } from "randomstring";
 const API = new YTMusic();
 await API.initialize(/* Optional: Custom cookies */);
 
-const agent = ytdl.createAgent({ cookies : JSON.parse(fs.readFileSync("cookies.json"))})
+const agent = ytdl.createAgent(JSON.parse(fs.readFileSync("cookies.json")))
 
 export default async function music(search, callback) {
   try {
