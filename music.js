@@ -39,7 +39,7 @@ export default async function music(search, callback) {
       quality: 'highestaudio',
       filter: "audioonly",
       headers,
-      //agent
+      agent
     })
 
     const audioOutput = fs.createWriteStream(audioPath);
