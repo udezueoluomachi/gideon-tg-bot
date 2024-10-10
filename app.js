@@ -22,7 +22,7 @@ connectToDatabase()
 
 const token = process.env.KEY;
 const botID = 7123617877
-const masterID = 2143033607
+const masterID = 7671963344
 
 const bot = new TelegramBot(token, {polling: true});
 
@@ -358,6 +358,7 @@ ${sanitizeHtmlForTelegram(response)}
 });
 
 bot.on('message', async (msg) => {
+  console.log(msg.from)
   const isMuted = await MutedChats.findOne({chatID : `${msg.from.id}`})
   if(isMuted)
     return 0
