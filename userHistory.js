@@ -1,6 +1,6 @@
 import Chat from "./model/usermessages.js";
 import { history as modelHistory } from "./genai.js";
-const botID = 7123617877
+const botID = 7814437622
 
 export const getConversationHistory = async (userID) => {
     const history = await Chat.find({

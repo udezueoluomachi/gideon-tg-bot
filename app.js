@@ -21,7 +21,7 @@ connectToDatabase()
 
 
 const token = process.env.KEY;
-const botID = 7123617877
+const botID = 7814437622
 const masterID = 7671963344
 
 const bot = new TelegramBot(token, {polling: true});
