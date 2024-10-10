@@ -358,7 +358,6 @@ ${sanitizeHtmlForTelegram(response)}
 });
 
 bot.on('message', async (msg) => {
-  console.log(msg.from)
   const isMuted = await MutedChats.findOne({chatID : `${msg.from.id}`})
   if(isMuted)
     return 0
