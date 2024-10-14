@@ -346,7 +346,7 @@ Link from <a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>
 });
 
 
-bot.onText(/ask (.+)/, async (msg, match) => {
+bot.onText(/\/ask (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
 
   const prompt = `${match[1].trim()} ${msg.from.id === masterID ? "user" + msg.from.id : ""}`

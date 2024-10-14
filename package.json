@@ -2,7 +2,7 @@
   "dependencies": {
     "@distube/ytdl-core": "^4.14.4",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
-    "@google/generative-ai": "^0.17.0",
+    "@google/generative-ai": "^0.21.0",
     "ddg": "^0.0.3",
     "dotenv": "^16.4.5",
     "fluent-ffmpeg": "^2.1.3",
