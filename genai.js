@@ -154,7 +154,7 @@ export default async function chat(prompt, userHistory) {
     }
     catch(err) {
         console.log(err)
-        return "😶‍🌫️ I can't respond right now"
+        return "😶‍🌫️ I can't respond right now.\nContact support @gideon_bot_support"
     }
 }
 
