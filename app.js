@@ -159,7 +159,7 @@ ${result === false ? "Something went wrong" : result}
       thumbnail :"./thumbnail.jpg",
       parse_mode : "HTML"
     })
-    .then(() => {
+    .finally(() => {
       fs.unlink(audio, (err) => {
         if (err) {
           return;
