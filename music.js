@@ -1,59 +1,49 @@
-import YTMusic from "ytmusic-api";
-import fs from "fs"; // Required to manage file streams
+import fs from "fs";
 import path from "path";
 import { generate } from "randomstring";
-import { stream as Stream } from "play-dl";
+import SpotifySearch from 'spotify-finder'
+import Spotify from 'spotifydl-core'
+import axios from "axios";
 
-const API = new YTMusic();
-await API.initialize(/* Optional: Custom cookies */);
+const credentials = {
+  clientId : process.env.CLIENT_ID,
+  clientSecret : process.env.CLIENT_SECRET
+}
 
+const client = new SpotifySearch({
+  consumer : {
+    key : process.env.CLIENT_ID,
+    secret : process.env.CLIENT_SECRET
+  }
+})
+const spotify = new Spotify.default(credentials)
 
 export default async function music(search, callback) {
   try {
-    const songs = await API.search(search);
+    const songs = await client.search({
+      q : search,
+      type : "track",
+      limit : 5
+    });
+    if(!songs || songs.tracks.items.length === 0)
+      return callback("No songs found");
 
-    if (!songs || songs.length === 0) {
-     return callback("No songs found");
-    }
-
-    const videoId = songs[0].videoId
     
-    const url = `https://www.youtube.com/watch?v=${songs[0].videoId}`;
+    const outputFilePath = `${songs.tracks.items[0].name}-(${generate({length : 4})})`;
+    const url = songs.tracks.items[0].external_urls.spotify 
 
-
-    const outputFilePath = `${songs[0].name}-${generate({length : 4})}.mp3`;
+    const thumbResponse = await axios.get(songs.tracks.items[0].album.images[0].url, { responseType: 'arraybuffer' });
+    const thumbBuffer = Buffer.from(thumbResponse.data);
 
     const audioPath = path.join(
       process.cwd(),
       `${outputFilePath}`
     );
 
-    const {stream} = (await Stream(url))
+    await spotify.downloadTrack(url, audioPath)
 
-    const audioOutput = fs.createWriteStream(audioPath);
+    return callback(outputFilePath, thumbBuffer)
 
-    stream.pipe(audioOutput)
-
-    audioOutput.on("error", (err) => {
-      console.error("File stream error:", err);
-      fs.unlink(outputFilePath, (err) => {
-        if (err) {
-          return;
-        }
-      });
-      return callback(false);
-    });
-    
-    audioOutput.on("finish", () => {
-      console.log("Download finished:", audioPath);
-      return callback(audioPath, songs[0]);
-    });
-    
-    stream.on("error", (err) => {
-      console.error("Stream error:", err);
-      return callback(false);
-    });
-    
   } catch (error) {
     console.error("Error in music download:", error);
     return callback(false)

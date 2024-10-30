@@ -145,7 +145,7 @@ bot.onText(/\/music (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const input = msg.text.substring(7).trim()
 
-  await music(input, (result, song) => {
+  await music(input, (result, thumbnail) => {
     if(result === false || result === "No songs found")
       return sendMessage(chatId, 
 `
@@ -156,7 +156,7 @@ ${result === false ? "Something went wrong" : result}
     const audio = path.resolve(result)
     bot.sendAudio(chatId, audio, {
       caption : `<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>`,
-      thumbnail :"./thumbnail.jpg",
+      thumbnail : thumbnail,
       parse_mode : "HTML"
     })
     .finally(() => {
