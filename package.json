@@ -15,7 +15,7 @@
     "random-words": "^2.0.1",
     "randomstring": "^1.3.0",
     "spotify-finder": "^2.1.1",
-    "spotifydl-core": "^0.2.0"
+    "spottydl": "^0.2.6"
   },
   "scripts": {
     "start": "node ./app.js",

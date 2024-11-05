@@ -11,7 +11,7 @@ import { changeAudioSpeed } from "./audo-editor.js";
 import { generate } from "randomstring";
 import fs from "fs"
 import ddg from "ddg"
-import music from "./music.js";
+//import music from "./music.js";
 import path from "path";
 import { createReadStream } from "fs";
 
@@ -140,7 +140,7 @@ use /ask or send a message containing "gideon" to chat with the AI
 );
 });
 
-
+/*
 bot.onText(/\/music (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const input = msg.text.substring(7).trim()
@@ -166,10 +166,10 @@ ${result === false ? "Something went wrong" : result}
         }
       });
     })
-    /**/
+    
   })
 })
-
+*/
 bot.onText(/\$voice/, async (msg, match) => {
   const chatId = msg.chat.id;
   
