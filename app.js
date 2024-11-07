@@ -432,7 +432,7 @@ $voice - for the ai to use voice messages
   }
   
   else if(msg.chat.type === "private") {
-    let input = `${msg.text} ${msg.from.id === masterID ? "user" + msg.from.id : ""}`
+    let input = `${msg.text} ${msg.from.id === masterID ? "user" + msg.from.id : ""} timestamp{${new Date().toUTCString()}}`
     const userID = msg.from.id
     const history = await getConversationHistory(userID)
     const response = await chat(input, history)
@@ -454,7 +454,7 @@ ${sanitizeHtmlForTelegram(response)}
     }
   }
   else if(triggerWords.some( word => msg.text.toLowerCase().includes(word)) || (msg.reply_to_message && msg.reply_to_message.from.id === botID)) {
-    let input = `${msg.text} ${msg.from.id === masterID ? "user" + msg.from.id : ""}`
+    let input = `${msg.text} ${msg.from.id === masterID ? "user" + msg.from.id : ""} timestamp{${new Date().toUTCString()}}`
     const userID = msg.from.id
     const history = await getConversationHistory(userID)
     if(msg.reply_to_message && msg.reply_to_message?.text && msg.reply_to_message.from.id === botID)
