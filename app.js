@@ -107,11 +107,15 @@ function sanitizeForVoice(input) {
 }
 
 const sendMessage = (chatId, text, options = {}) => {
-  bot.sendMessage(chatId, text, options)
-    .then()
-    .catch((error) => {
-      console.error('Failed to send message:', error);
-    });
+  bot.sendChatAction(chatId, 'typing').then(() => {
+    setTimeout(() => {
+      bot.sendMessage(chatId, text, options)
+      .then()
+      .catch((error) => {
+        console.error('Failed to send message:', error);
+      });
+    }, 2000); // 2-second delay
+  });
 };
 
 bot.onText(/\/start/, (msg, match) => {
@@ -126,18 +130,12 @@ bot.onText(/\/start/, (msg, match) => {
       ]
     }
   };
-
   sendMessage(chatId, 
 `
-Welcome to @gideon_from_2024_bot Bot.
-This is just a random bot.
-Opps! 😎😎
-
-You can choose any of these options
-send /help for list of commands
-use /ask or send a message containing "gideon" to chat with the AI
+Hi
 `
 );
+  bot.deleteMessage(chatId, msg.message_id)
 });
 
 /*
