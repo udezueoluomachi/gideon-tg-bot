@@ -11,7 +11,7 @@ import { changeAudioSpeed } from "./audo-editor.js";
 import { generate } from "randomstring";
 import fs from "fs"
 import ddg from "ddg"
-//import music from "./music.js";
+import music from "./music.js";
 import path from "path";
 import { createReadStream } from "fs";
 
@@ -138,7 +138,7 @@ Hi
   bot.deleteMessage(chatId, msg.message_id)
 });
 
-/*
+
 bot.onText(/\/music (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const input = msg.text.substring(7).trim()
@@ -157,17 +157,18 @@ ${result === false ? "Something went wrong" : result}
       thumbnail : thumbnail,
       parse_mode : "HTML"
     })
-    .finally(() => {
+    /*.finally(() => {
       fs.unlink(audio, (err) => {
         if (err) {
           return;
         }
       });
-    })
+    })*/
     
   })
 })
-*/
+
+
 bot.onText(/\$voice/, async (msg, match) => {
   const chatId = msg.chat.id;
   
@@ -504,8 +505,8 @@ bot.on('inline_query', async (query) => {
       id : 0,
       type : "article",
       message_text : sanitizeHtmlForTelegram(response),
-      title:  "Gideon 🤖",
-      description: "Tap 👆 to send message",
+      title:  "Gideon 🤖: Tap 👆 to send message",
+      description: sanitizeHtmlForTelegram(response).slice(0, 40),
       url : ""
     }])
   }
