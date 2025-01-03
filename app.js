@@ -143,29 +143,32 @@ bot.onText(/\/music (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const input = msg.text.substring(7).trim()
 
-  await music(input, (result, thumbnail) => {
-    if(result === false || result === "No songs found")
+  music(input).then((solution) => {
+    const {fileName, thumbnail} = solution;
+
+    if(!fileName)
       return sendMessage(chatId, 
 `
 <a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>
-🎶
-${result === false ? "Something went wrong" : result}
+🎶 "Something went wrong"}
 `, {parse_mode : "HTML"})
-    const audio = path.resolve(result)
+  
+
+    const audio = path.resolve(fileName)
     bot.sendAudio(chatId, audio, {
       caption : `<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>`,
       thumbnail : thumbnail,
       parse_mode : "HTML"
     })
-    /*.finally(() => {
+    .finally(() => {
       fs.unlink(audio, (err) => {
         if (err) {
           return;
         }
       });
-    })*/
-    
+    })
   })
+
 })
 
 

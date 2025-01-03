@@ -20,6 +20,19 @@ const getThumbnailBuffer = async (thumbnailUrl) => {
     }
   };
 
+const downloadSong = async (url, fileName) => {
+    return new Promise((resolve, reject) => {
+        const stream = ytdl(url, {
+            quality: "highestaudio",
+            filter: "audioonly",
+        }).pipe(createWriteStream(fileName));
+    
+        stream
+        .on("finish", () => resolve(true)) 
+        .on("error", (error) => reject(error));
+    })
+}
+
 export const music = async (search) => {
     try {
         const ytmusic = new YTMusic()
@@ -31,14 +44,13 @@ export const music = async (search) => {
             return false;
           }
         const thumbnail = await getThumbnailBuffer(songs[0].thumbnails[0].url)
-        const fileName = `${songs[0].name}.mp3`
+        const fileName = `${songs[0].name.replace(/[^a-zA-Z0-9 ]/g, "").trim()}.mp3`
         if(existsSync(fileName)) {
             return {fileName, thumbnail}
         }
-        ytdl(`http://www.youtube.com/watch?v=${songId}`,{
-            quality: 'highestaudio',
-            filter: 'audioonly',
-          }).pipe(createWriteStream(fileName))
+
+        await downloadSong(`http://www.youtube.com/watch?v=${songId}`, fileName)
+        
 
         return {fileName, thumbnail}
     }
