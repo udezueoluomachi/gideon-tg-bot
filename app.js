@@ -496,16 +496,20 @@ bot.on("location", (msg) => {
   sendMessage(chatId, "Wow, you are from : " + msg.location.latitude)
 })
 
-bot.on('inline_query', (query) => {
-  if(isUrl(query.query))
+bot.on('inline_query', async (query) => {
+  const prompt = query.query
+  if(prompt) {
+    const response = await chat(prompt)
     return bot.answerInlineQuery(query.id, [{
-      id: 0,
+      id : 0,
       type : "article",
-      title:  "🔗🔏 URL",
-      description: "You are sending an encrypted link :",
-      message_text: "/url " + encrypt(query.query),
-      url : query.query,
-  }]);
+      message_text : sanitizeHtmlForTelegram(response),
+      title:  "Gideon 🤖",
+      description: "Tap 👆 to send message",
+      url : ""
+    }])
+  }
+  
   return bot.answerInlineQuery(query.id, []);
 });
 
