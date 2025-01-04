@@ -156,7 +156,7 @@ bot.onText(/\/music (.+)/, async (msg, match) => {
 
     const audio = path.resolve(fileName)
     bot.sendAudio(chatId, audio, {
-      caption : `<a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>`,
+      caption : `Song requested by <a href="tg://user?id=${msg.from.id}">${msg.from.first_name}</a>`,
       thumbnail : thumbnail,
       parse_mode : "HTML"
     })
