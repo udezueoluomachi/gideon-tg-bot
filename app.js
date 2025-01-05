@@ -13,10 +13,6 @@ import fs from "fs"
 import ddg from "ddg"
 import music from "./music.js";
 import path from "path";
-import { createReadStream } from "fs";
-
-
-
 
 configDotenv()
 connectToDatabase()
