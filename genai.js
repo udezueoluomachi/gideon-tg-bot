@@ -4,7 +4,7 @@ import { configDotenv } from "dotenv";
 configDotenv()
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash",
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp-image-generation",
    safetySettings : [
       {
         category: HarmCategory.HARM_CATEGORY_HARASSMENT,
