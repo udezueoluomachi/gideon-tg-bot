@@ -19,8 +19,8 @@ connectToDatabase()
 
 
 const token = process.env.KEY;
-const botID = 7814437622
-const masterID = 7753369063
+const botID = Number(process.env.BOT_ID)
+const masterID = Number(process.env.MASTER_ID)
 
 const bot = new TelegramBot(token, {polling: true});
 
@@ -359,6 +359,7 @@ ${sanitizeHtmlForTelegram(response)}
 
 bot.on('message', async (msg) => {
   const isMuted = await MutedChats.findOne({chatID : `${msg.from.id}`})
+  console.log(msg.from.id)
   if(isMuted)
     return 0
   const chatId = msg.chat.id;
@@ -366,7 +367,7 @@ bot.on('message', async (msg) => {
   const triggerWords = [
     "gideon",
     // Greetings
-    /*
+    
     "hi", 
     "hello", 
     "hey", 
@@ -377,7 +378,7 @@ bot.on('message', async (msg) => {
     "howdy", 
     "greetings", 
     "sup",
-    
+    /*
     // Cry for Help
     "help", 
     "please help", 
@@ -487,7 +488,7 @@ ${sanitizeHtmlForTelegram(response)}
     /**/return
   }
 });
-
+/*
 bot.on("contact", (msg) => {
   const chatId = msg.chat.id;
   sendMessage(chatId, 'Your number has been received');
@@ -497,7 +498,7 @@ bot.on("location", (msg) => {
   const chatId = msg.chat.id;
   sendMessage(chatId, "Wow, you are from : " + msg.location.latitude)
 })
-
+*/
 bot.on('inline_query', async (query) => {
   const prompt = query.query
   if(prompt) {
